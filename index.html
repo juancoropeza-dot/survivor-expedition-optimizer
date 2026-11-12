@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Clan Expedition Optimizer v1.0</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: { extend: { colors: {
+        darkbg: '#090D16', cardbg: '#131A29', panelbg: '#1C2537',
+        accent: '#8B5CF6', gold: '#F59E0B',
+        emeraldGreen: '#10B981', emeraldDark: '#064E3B',
+      }}}
+    }
+  </script>
+  <link rel="stylesheet" href="css/tags.css">
+</head>
+<body class="bg-darkbg text-slate-100 min-h-screen flex flex-col antialiased select-none text-sm overflow-x-hidden relative">
+
+  <!-- Header -->
+  <header class="bg-slate-900 border-b border-slate-800 px-4 py-3 shrink-0">
+    <div class="max-w-md mx-auto flex items-center justify-between">
+      <div>
+        <h1 class="text-base font-black text-white flex items-center gap-2">
+          Expedition Planner
+        </h1>
+      </div>
+      <div class="flex items-center gap-3">
+        <div class="text-right">
+          <p class="text-[11px] uppercase font-bold text-slate-400">Total</p>
+          <p id="headerTotal" class="text-base font-black text-amber-400 font-mono">0h</p>
+        </div>
+        
+        <button onclick="app.openHelp('schedule')" class="p-2 bg-slate-800 rounded-lg border border-slate-700 hover:bg-slate-700 text-slate-300 font-bold">
+          ?
+        </button>
+
+        <button onclick="app.openConfig()" class="p-2 bg-slate-800 rounded-lg border border-slate-700 hover:bg-slate-700">
+          <svg class="w-5 h-5 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Wrapper -->
+  <div class="flex-1 flex flex-col max-w-md mx-auto w-full">
+    <main class="pt-3 pb-2 flex flex-col">
+      <div class="flex items-center justify-between px-2 shrink-0">
+        <div class="flex gap-1 overflow-x-auto hide-scrollbar" id="waveTabs"></div>
+        
+        <div class="flex items-center bg-slate-800 rounded-lg p-0.5 border border-slate-700 text-[9px] font-bold ml-2 shrink-0">
+          <button id="btn-node-num" onclick="app.setNodeDisplay(false)" class="px-2 py-1 rounded bg-blue-600 text-white transition">Num</button>
+          <button id="btn-node-tag" onclick="app.setNodeDisplay(true)" class="px-2 py-1 rounded text-slate-400 hover:text-white transition">Tag</button>
+        </div>
+      </div>
+      
+      <div class="p-3 flex flex-col gap-2" id="activeWaveSlots"></div>
+    </main>
+
+    <!-- Bottom Section -->
+    <div class="mt-auto flex flex-col shrink-0">
+      <div class="bg-slate-900 border-t border-slate-800 p-3 w-full flex gap-2">
+        
+        <!-- Auto-Fill Button (Dynamic Warning) -->
+        <button id="btn-autofill" onclick="app.autoFill()" class="flex-1 py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-sm font-bold rounded-xl shadow-lg transition flex items-center justify-center gap-1">
+          <span id="autofill-text">Auto-Fill</span>
+        </button>
+        
+        <button onclick="app.clearAll()" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-bold rounded-xl border border-slate-700 transition">Clear</button>
+        
+        <button onclick="app.copyDebugData()" class="px-3 py-2.5 h-full bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-bold rounded-xl border border-slate-700 transition flex items-center gap-1">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
+          Data
+        </button>
+      </div>
+
+      <div class="bg-cardbg border-t border-slate-800 w-full p-3 pb-safe">
+        <div class="flex items-center justify-between mb-3">
+          <h2 class="text-xs font-bold uppercase tracking-wider text-slate-300">Bench (<span id="benchCount">0</span>)</h2>
+          <span class="text-[10px] text-slate-400">Best Available Time</span>
+        </div>
+        <div class="flex flex-wrap gap-2" id="benchList"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Config Modal -->
+  <div id="configModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex-col">
+    <div class="bg-darkbg w-full h-full max-w-md mx-auto flex flex-col">
+      
+      <div class="flex items-center justify-between p-4 border-b border-slate-800 bg-slate-900 shrink-0">
+        <h2 class="text-base font-bold text-white w-1/3">Configuration</h2>
+        <div class="w-1/3 flex justify-center">
+          <button onclick="app.openConfigHelp()" class="p-2 bg-slate-800 rounded-lg border border-slate-700 hover:bg-slate-700 text-slate-300 font-bold px-4">
+            ?
+          </button>
+        </div>
+        <div class="w-1/3 flex justify-end">
+          <button onclick="app.closeConfig()" class="text-slate-300 hover:text-white text-sm font-bold px-3 py-1 bg-slate-800 rounded-lg border border-slate-700">Done</button>
+        </div>
+      </div>
+
+      <div class="bg-slate-800 border-b border-slate-700 flex px-2 shrink-0">
+        <button onclick="app.setConfigTab('nodes')" id="btn-cfg-nodes" class="px-4 py-3 text-sm font-bold text-cyan-400 border-b-2 border-cyan-400 transition">
+          Node Board
+        </button>
+        <button onclick="app.setConfigTab('roster')" id="btn-cfg-roster" class="px-4 py-3 text-sm font-bold text-slate-400 hover:text-slate-300 border-b-2 border-transparent transition">
+          Roster
+        </button>
+      </div>
+
+      <div class="flex-1 overflow-y-auto p-3 hide-scrollbar" id="configContent"></div>
+    </div>
+  </div>
+
+  <!-- IMPORT MODAL -->
+  <div id="importModal" class="fixed inset-0 z-[60] bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="bg-cardbg w-full max-w-sm rounded-xl border border-slate-700 shadow-2xl flex flex-col overflow-hidden">
+      <div class="bg-slate-900 p-3 border-b border-slate-800 flex justify-between items-center">
+        <h2 class="text-sm font-bold text-white">Import Data</h2>
+        <button onclick="app.closeImportNodes()" class="text-slate-400 hover:text-white">✕</button>
+      </div>
+      <div class="p-3">
+        <p class="text-[10px] text-slate-400 mb-2">Paste a Node array OR a Full Data object below to restore your board or plan.</p>
+        <textarea id="importText" class="w-full h-32 bg-slate-900 text-slate-300 text-[10px] font-mono p-2 rounded-lg border border-slate-700 focus:outline-none resize-none" placeholder='[{"tags":["short_hair"]}, ...] OR {"nodes": [...], "waves": [...]}'></textarea>
+      </div>
+      <div class="p-3 bg-slate-900 border-t border-slate-800 flex gap-2">
+        <button onclick="app.submitImportedNodes()" class="flex-1 py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg transition">Import</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- GLOBAL TOAST NOTIFICATION -->
+  <div id="toast" class="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-emerald-600 text-white px-4 py-2 rounded-xl shadow-2xl text-xs font-bold opacity-0 translate-y-2 transition-all duration-300 pointer-events-none whitespace-nowrap z-[100] border border-emerald-700">
+    Copied!
+  </div>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
