@@ -62,8 +62,6 @@
     <!-- Bottom Section -->
     <div class="mt-auto flex flex-col shrink-0">
       <div class="bg-slate-900 border-t border-slate-800 p-3 w-full flex gap-2">
-        
-        <!-- Auto-Fill Button (Dynamic Warning) -->
         <button id="btn-autofill" onclick="app.autoFill()" class="flex-1 py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-sm font-bold rounded-xl shadow-lg transition flex items-center justify-center gap-1">
           <span id="autofill-text">Auto-Fill</span>
         </button>
@@ -75,6 +73,9 @@
           Data
         </button>
       </div>
+
+      <!-- Warning Container (Below buttons, above bench) -->
+      <div id="warning-banner-container" class="px-3 pt-3 empty:hidden"></div>
 
       <div class="bg-cardbg border-t border-slate-800 w-full p-3 pb-safe">
         <div class="flex items-center justify-between mb-3">

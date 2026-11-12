@@ -6,6 +6,7 @@ import { BASE_TIMES, TAG_BOOST, computeTime } from "../data/timings.js";
 
 export function render(showTags = false) {
   renderAutoFillButton();
+  renderWarnings();
   renderTabs();
   renderActiveWave(showTags);
   renderBench();
@@ -19,6 +20,34 @@ function renderAutoFillButton() {
     btnText.innerHTML = `Auto-Fill <span class="text-amber-300 ml-1" title="Settings changed. Re-run Auto-Fill to recalculate.">⚠️</span>`;
   } else {
     btnText.innerHTML = `Auto-Fill`;
+  }
+}
+
+function renderWarnings() {
+  const container = document.getElementById("warning-banner-container");
+  if (!container) return;
+  
+  container.innerHTML = "";
+
+  const isRosterEmpty = state.bench.length === 0 && state.waves.every(w => w.length === 0);
+  const isNodesEmpty = state.nodes.every(n => n.tags.length === 0);
+
+  if (isRosterEmpty) {
+    container.innerHTML += `
+      <div class="w-full bg-blue-950/40 border border-blue-800/60 rounded-lg p-2.5 mb-3 flex items-start gap-2 shadow-sm">
+        <span class="text-blue-400 text-sm mt-0.5">💡</span>
+        <p class="text-[11px] text-blue-200 leading-tight"><strong>No Survivors Selected.</strong> Go to ⚙️ Config -> Roster to pick who you own.</p>
+      </div>
+    `;
+  }
+
+  if (isNodesEmpty) {
+    container.innerHTML += `
+      <div class="w-full bg-blue-950/40 border border-blue-800/60 rounded-lg p-2.5 mb-3 flex items-start gap-2 shadow-sm">
+        <span class="text-blue-400 text-sm mt-0.5">💡</span>
+        <p class="text-[11px] text-blue-200 leading-tight"><strong>No Node Tags set.</strong> Times are using base durations. Go to ⚙️ Config -> Node Board to set them.</p>
+      </div>
+    `;
   }
 }
 
@@ -196,7 +225,6 @@ function processWaveLogic(waveIds) {
   if (leftovers.length > 0) {
     const leftoverObjs = leftovers.map(mapToObj);
     
-    // THE FIX: Calculate real times instead of passing 0
     const dummyLeftoverItems = leftoverObjs.map(s => {
       let bestTime = Infinity;
       state.nodes.forEach(node => {

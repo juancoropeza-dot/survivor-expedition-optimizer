@@ -74,6 +74,7 @@ export function addWave() {
   }
   state.waves.push([]);
   state.activeWaveIdx = state.waves.length - 1;
+  state.isDirty = true; // <--- THE FIX: Trigger dirty state when adding a wave
   saveState();
   scheduleUI.render(state.showNodeTags);
 }
@@ -307,7 +308,6 @@ export function copyDebugData() {
     if (leftovers.length > 0) {
       const leftoverObjs = leftovers.map(mapToObj);
       
-      // THE FIX: Calculate real times for debug export
       const dummyLeftoverItems = leftoverObjs.map(s => {
         let bestTime = Infinity;
         state.nodes.forEach(node => {
