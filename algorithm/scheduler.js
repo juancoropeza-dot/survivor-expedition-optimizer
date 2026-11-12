@@ -43,14 +43,13 @@ export function generateSuggestion(benchSurvivors, existingWaves, nodes) {
       let total = chunks.reduce((sum, c) => sum + (c.length > 0 ? c[0].bestTime : 0), 0);
       
       if (total > 24.5) {
-        // Drop ONLY the single heaviest survivor
         validSurvivors.shift(); 
         changed = true;
       }
     }
   }
 
-  // 5. Build Host Waves (Waves 1, 2, 3) with Perfect Groups
+  // 5. Build Host Waves (Waves 1, 2, 3)
   let numWaves = Math.min(4, Math.max(3, existingWaves.length));
   let hostWavesNeeded = numWaves - 1;
   
@@ -129,27 +128,37 @@ export function generateSuggestion(benchSurvivors, existingWaves, nodes) {
 
   let spongeWave = [...spongeHosts];
 
+  // Calculate initial Sponge Time
+  let currentSpongeTime = 0;
+  if (spongeWave.length > 0) {
+      const res = assignWave(spongeWave, nodes);
+      if (res) currentSpongeTime = res.maxTime;
+  }
+
   for (let s of squishCandidates) {
     let testWave = [...spongeWave, s];
     
+    // Calculate test wave time
     const res = assignWave(testWave.slice(0, 4), nodes);
-    let waveTime = 0;
+    let testWaveTime = 0;
     if (res) {
       let hostWave = { items: res.assignment, maxDuration: res.maxTime, hasSquished: false };
-      
-      // Pass actual bestTime so squish.js sorts them Largest First
       let dummySquished = testWave.slice(4).map(sv => ({ survivor: sv, node: null, time: sv.bestTime }));
       let leftoverWave = { items: dummySquished, maxDuration: 0, hasSquished: false };
       
       let processed = applySquish([hostWave, leftoverWave], nodes);
-      waveTime = processed[0]?.maxDuration || 0;
+      testWaveTime = processed[0]?.maxDuration || 0;
     }
     
-    // Check 24.5h Overflow
-    if (baseTotal + waveTime > 24.5) {
-      // Skip candidate if it causes overflow
+    let currentTotal = baseTotal + currentSpongeTime;
+    let testTotal = baseTotal + testWaveTime;
+
+    // If adding this survivor makes the time WORSE and pushes us over the limit, skip
+    if (testTotal > 24.5 && testTotal > currentTotal) {
+      // Skip candidate if it causes a *new* overflow
     } else {
       spongeWave.push(s);
+      currentSpongeTime = testWaveTime;
     }
   }
 
