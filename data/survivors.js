@@ -17,9 +17,9 @@ export const SURVIVORS = [
   { id: "elaine",        name: "Elaine",        category: "sp", rarity: "sp", tags: ["female", "long_hair"] },
 
   // --- EVENT SP ---
-  { id: "nezha",         name: "Nezha",         category: "event_sp", rarity: "sp", tags: [] },
-  { id: "vulcan",        name: "Vulcan",        category: "event_sp", rarity: "sp", tags: [] },
-  { id: "loki",          name: "Loki",          category: "event_sp", rarity: "sp", tags: [] },
+  { id: "nezha",         name: "Nezha",         category: "event_sp", rarity: "sp", tags: ["long_hair", "male"] },
+  { id: "vulcan",        name: "Vulcan",        category: "event_sp", rarity: "sp", tags: ["female", "long_hair"] },
+  { id: "loki",          name: "Loki",          category: "event_sp", rarity: "sp", tags: ["male", "bald"] },
 
   // --- TMNT ---
   { id: "leonardo",      name: "Leonardo",      category: "tmnt", rarity: "sp", tags: [] },
